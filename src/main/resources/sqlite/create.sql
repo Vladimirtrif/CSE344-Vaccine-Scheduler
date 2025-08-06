@@ -31,7 +31,7 @@ CREATE TABLE Reservations (
     Caregiver varchar(255),
     Time date,
     PRIMARY KEY (ID),
-    FOREIGN KEY Vaccine REFERENCES Vaccines,
-    FOREIGN KEY Patient REFERENCES Patients,
-    FOREIGN KEY Caregiver REFERENCES Caregivers,
+    FOREIGN KEY (Vaccine) REFERENCES Vaccines,
+    FOREIGN KEY (Patient) REFERENCES Patients,
+    FOREIGN KEY (Caregiver) REFERENCES Caregivers
 );
