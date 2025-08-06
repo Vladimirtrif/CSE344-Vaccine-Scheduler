@@ -215,7 +215,7 @@ public class Scheduler {
         if (patient == null) {
             System.out.println("Login patient failed");
         } else {
-            System.out.println("Logged in as: " + username);
+            System.out.println("Logged in as " + username);
             currentPatient = patient;
         }
     }
