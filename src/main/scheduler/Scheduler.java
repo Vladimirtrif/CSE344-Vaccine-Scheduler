@@ -410,9 +410,11 @@ public class Scheduler {
         // TODO: Part 2
         if (currentCaregiver == null && currentPatient == null) {
             System.out.println("Please login first");
+            return;
         }
         if (tokens.length != 1) {
             System.out.println("Please try again");
+            return;
         }
         if (currentCaregiver != null) {
            currentCaregiver.showAppointments();
