@@ -87,7 +87,7 @@ public class Patient {
             s2.setString(2, caregiver);
             s1.executeUpdate();
             s2.executeUpdate();
-            System.out.println("Appointment ID" + resID + ", Caregiver username " + caregiver);
+            System.out.println("Appointment ID " + resID + ", Caregiver username " + caregiver);
             s1.close();
         } catch (SQLException e) {
             throw new SQLException();

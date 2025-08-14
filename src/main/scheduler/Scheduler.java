@@ -408,13 +408,17 @@ public class Scheduler {
 
     private static void showAppointments(String[] tokens) {
         // TODO: Part 2
+        if (currentCaregiver == null && currentPatient == null) {
+            System.out.println("Please login first");
+        }
+        if (tokens.length != 1) {
+            System.out.println("Please try again");
+        }
         if (currentCaregiver != null) {
            currentCaregiver.showAppointments();
         }
-        else if (currentPatient != null) {
+        else {
             currentPatient.showAppointments();
-        } else {
-            System.out.println("Please login first");
         }
 
 
@@ -425,6 +429,10 @@ public class Scheduler {
         // Check that somebody is logged in
         if (currentCaregiver == null && currentPatient == null) {
             System.out.println("Please login first");
+            return;
+        }
+        if (tokens.length != 1) {
+            System.out.println("Please try again");
             return;
         }
         // logout (only one should be logged in but setting both to null should be safe)
