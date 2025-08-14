@@ -253,10 +253,85 @@ public class Scheduler {
 
     private static void searchCaregiverSchedule(String[] tokens) {
         // TODO: Part 2
+        // Since functionality is same for Caregivers and Patients
+        // so I will implement entire function here
+        // check login
+        if (currentCaregiver == null && currentPatient == null) {
+            System.out.println("Please login first");
+            return;
+        }
+        // Check that user passed in correct number of args
+        if (tokens.length != 2) {
+            System.out.println("Please try again");
+            return;
+        }
+        String date = tokens[1];
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+
+        String availableCaregivers  = "SELECT Username FROM Availabilities WHERE Time = ?";
+        String availableVaccines = "SELECT Name, Doses FROM Vaccines";
+        try {
+            Date d = Date.valueOf(date);
+            PreparedStatement s1 = con.prepareStatement(availableCaregivers);
+            PreparedStatement s2 = con.prepareStatement(availableVaccines);
+            s1.setDate(1, d);
+            ResultSet caregivers = s1.executeQuery();
+            ResultSet vaccines = s2.executeQuery();
+            boolean hasCaregivers = false;
+            System.out.println("Caregivers:");
+            while (caregivers.next()) {
+                System.out.println(caregivers.getString("Username"));
+                hasCaregivers = true;
+            }
+            if (!hasCaregivers) {
+                System.out.println("None available");
+            }
+            boolean hasVaccines = false;
+            System.out.println("Vaccines:");
+            while (vaccines.next()) {
+                System.out.println(vaccines.getString("Name") + " " + vaccines.getInt("Doses"));
+                hasVaccines = true;
+            }
+            if (!hasVaccines) {
+                System.out.println("None available");
+            }
+            caregivers.close();
+            vaccines.close();
+            s1.close();
+            s2.close();
+        } catch (IllegalArgumentException e) {
+            // invalid date
+            System.out.println("Please try again");
+        } catch (SQLException e) {
+            System.out.println("Please try again");
+        } finally {
+            cm.closeConnection();
+        }
     }
 
     private static void reserve(String[] tokens) {
         // TODO: Part 2
+        if (currentCaregiver != null) {
+            System.out.println("Please login as a patient");
+            return;
+        }
+        if (currentPatient == null) {
+            System.out.println("Please login first");
+            return;
+        }
+        if (tokens.length != 3) {
+            System.out.println("Please try again");
+            return;
+        }
+        String date = tokens[1];
+        String vaccine = tokens[2];
+        try {
+            Date d = Date.valueOf(date);
+            currentPatient.reserve(d, vaccine);
+        } catch (Exception e) {
+            System.out.println("Please try again");
+        }
     }
 
     private static void uploadAvailability(String[] tokens) {
@@ -333,9 +408,28 @@ public class Scheduler {
 
     private static void showAppointments(String[] tokens) {
         // TODO: Part 2
+        if (currentCaregiver != null) {
+           currentCaregiver.showAppointments();
+        }
+        else if (currentPatient != null) {
+            currentPatient.showAppointments();
+        } else {
+            System.out.println("Please login first");
+        }
+
+
     }
 
     private static void logout(String[] tokens) {
         // TODO: Part 2
+        // Check that somebody is logged in
+        if (currentCaregiver == null && currentPatient == null) {
+            System.out.println("Please login first");
+            return;
+        }
+        // logout (only one should be logged in but setting both to null should be safe)
+        currentCaregiver = null;
+        currentPatient = null;
+        return;
     }
 }

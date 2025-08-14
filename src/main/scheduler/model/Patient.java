@@ -53,6 +53,114 @@ public class Patient {
         }
     }
 
+    public void reserve(Date d, String vaccineName) throws SQLException {
+        String caregiver = getCaregiver(d);
+        if (caregiver.isEmpty()) {
+            System.out.println("No caregiver is available");
+            return;
+        }
+        Vaccine vaccine = new Vaccine.VaccineGetter(vaccineName).get();
+        if (vaccine == null) {
+            throw new IllegalArgumentException("Vaccine doesn't exist");
+        }
+        try {
+            vaccine.decreaseAvailableDoses(1);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Not enough available doses");
+            return;
+        }
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+        String reservation  = "INSERT INTO Reservations VALUES (?, ?, ?, ?, ?)";
+        int resID = newReserveID();
+        try {
+            PreparedStatement s1 = con.prepareStatement(reservation);
+            s1.setInt(1, resID);
+            s1.setString(2, vaccineName);
+            s1.setString(3, this.username);
+            s1.setString(4, caregiver);
+            s1.setDate(5, d);
+            s1.executeUpdate();
+            System.out.println("Appointment ID" + resID + ", Caregiver username " + caregiver);
+            s1.close();
+        } catch (SQLException e) {
+            throw new SQLException();
+        } finally {
+            cm.closeConnection();
+        }
+    }
+
+    // returns "" if no caregiver available for that date
+    private String getCaregiver(Date d) throws SQLException {
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+        String getCaregiver  = "SELECT Username FROM Availabilities WHERE Time = ? ORDER BY Username ASC LIMIT 1";
+        try {
+            PreparedStatement s1 = con.prepareStatement(getCaregiver);
+            s1.setDate(1, d);
+            ResultSet res = s1.executeQuery();
+            String caregiver;
+            if (res.next()) {
+                caregiver = res.getString("Username");
+            } else {
+                caregiver = "";
+            }
+            res.close();
+            s1.close();
+            return caregiver;
+        } catch (SQLException e) {
+            throw new SQLException();
+        } finally {
+            cm.closeConnection();
+        }
+    }
+
+    // helper for reserve
+    private int newReserveID() throws SQLException {
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+        String getCurrID  = "SELECT MAX(ID) FROM Reservations";
+        try {
+            PreparedStatement s1 = con.prepareStatement(getCurrID);
+            ResultSet res = s1.executeQuery();
+            res.next();
+            int result = res.getInt(1) + 1;
+            res.close();
+            return result;
+        } catch (SQLException e) {
+            throw new SQLException();
+        } finally {
+            cm.closeConnection();
+        }
+    }
+
+    public void showAppointments() {
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+        String getApps = "SELECT ID, Vaccine, Time, Caregiver FROM Reservations WHERE Patient = ? ORDER BY ID ASC";
+        try {
+            PreparedStatement s1 = con.prepareStatement(getApps);
+            s1.setString(1, this.username);
+            ResultSet rs = s1.executeQuery();
+            boolean hasRes = false;
+            while(rs.next()) {
+                int ID  = rs.getInt("ID");
+                String Vaccine = rs.getString("Vaccine");
+                Date d = rs.getDate("Time");
+                String caregiver = rs.getString("Caregiver");
+                System.out.println(ID + " " + Vaccine + " " + d + " " + caregiver);
+                hasRes = true;
+            }
+            if (!hasRes) {
+                System.out.println("No appointments scheduled");
+            }
+        } catch (SQLException e) {
+            System.out.println("Please try again");
+        } finally {
+            cm.closeConnection();
+        }
+    }
+
     public static class PatientBuilder {
         private final String username;
         private final byte[] salt;

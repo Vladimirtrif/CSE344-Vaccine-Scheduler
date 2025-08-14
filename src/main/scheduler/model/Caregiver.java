@@ -71,6 +71,33 @@ public class Caregiver {
         }
     }
 
+    public void showAppointments() {
+        ConnectionManager cm = new ConnectionManager();
+        Connection con = cm.createConnection();
+        String getApps = "SELECT ID, Vaccine, Time, Patient FROM Reservations WHERE Caregiver = ? ORDER BY ID ASC";
+        try {
+            PreparedStatement s1 = con.prepareStatement(getApps);
+            s1.setString(1, this.username);
+            ResultSet rs = s1.executeQuery();
+            boolean hasRes = false;
+            while(rs.next()) {
+                int ID  = rs.getInt("ID");
+                String Vaccine = rs.getString("Vaccine");
+                Date d = rs.getDate("Time");
+                String patient = rs.getString("Patient");
+                System.out.println(ID + " " + Vaccine + " " + d + " " + patient);
+                hasRes = true;
+            }
+            if (!hasRes) {
+                System.out.println("No appointments scheduled");
+            }
+        } catch (SQLException e) {
+            System.out.println("Please try again");
+        } finally {
+            cm.closeConnection();
+        }
+    }
+
     public static class CaregiverBuilder {
         private final String username;
         private final byte[] salt;
