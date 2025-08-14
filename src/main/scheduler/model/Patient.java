@@ -73,6 +73,7 @@ public class Patient {
         ConnectionManager cm = new ConnectionManager();
         Connection con = cm.createConnection();
         String reservation  = "INSERT INTO Reservations VALUES (?, ?, ?, ?, ?)";
+        String updateAvailability = "DELETE FROM Availabilities WHERE Time = ? AND Username = ?";
         int resID = newReserveID();
         try {
             PreparedStatement s1 = con.prepareStatement(reservation);
@@ -81,7 +82,11 @@ public class Patient {
             s1.setString(3, this.username);
             s1.setString(4, caregiver);
             s1.setDate(5, d);
+            PreparedStatement s2 = con.prepareStatement(updateAvailability);
+            s2.setDate(1, d);
+            s2.setString(2, caregiver);
             s1.executeUpdate();
+            s2.executeUpdate();
             System.out.println("Appointment ID" + resID + ", Caregiver username " + caregiver);
             s1.close();
         } catch (SQLException e) {
