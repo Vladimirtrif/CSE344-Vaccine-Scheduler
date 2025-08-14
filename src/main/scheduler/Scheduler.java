@@ -285,7 +285,7 @@ public class Scheduler {
                 hasCaregivers = true;
             }
             if (!hasCaregivers) {
-                System.out.println("None available");
+                System.out.println("No caregivers available");
             }
             boolean hasVaccines = false;
             System.out.println("Vaccines:");
@@ -294,7 +294,7 @@ public class Scheduler {
                 hasVaccines = true;
             }
             if (!hasVaccines) {
-                System.out.println("None available");
+                System.out.println("No vaccines available");
             }
             caregivers.close();
             vaccines.close();
