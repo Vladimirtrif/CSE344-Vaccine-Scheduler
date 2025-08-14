@@ -61,7 +61,8 @@ public class Patient {
         }
         Vaccine vaccine = new Vaccine.VaccineGetter(vaccineName).get();
         if (vaccine == null) {
-            throw new IllegalArgumentException("Vaccine doesn't exist");
+            System.out.println("Not enough available doses");
+            return;
         }
         try {
             vaccine.decreaseAvailableDoses(1);

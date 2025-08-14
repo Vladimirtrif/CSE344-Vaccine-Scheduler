@@ -430,6 +430,6 @@ public class Scheduler {
         // logout (only one should be logged in but setting both to null should be safe)
         currentCaregiver = null;
         currentPatient = null;
-        return;
+        System.out.println("Successfully logged out");
     }
 }
